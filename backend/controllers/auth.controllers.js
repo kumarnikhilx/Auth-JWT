@@ -1,12 +1,25 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../config/token.js";
+import uploadOnCloudinary from "../config/cloudinary.js";
 
 export const signup = async (req, res) => {
   try {
     let { firstName, lastName, email, password, userName } = req.body;
     if (!firstName || !lastName || !email || !password || !userName) {
       return res.status(400).json({ message: "Fill All the Details" });
+    }
+   let profileImage = ""; // declare once at top
+
+    if (req.file) {
+      const localPath = req.file.path; // temporary file path
+      try {
+        const url = await uploadOnCloudinary(localPath); // get URL
+        profileImage = url; // assign returned URL
+        console.log("Uploaded to Cloudinary:", url);
+      } catch (err) {
+        console.log("Cloudinary Upload Error:", err);
+      }
     }
 
     let existUser = await User.findOne({ email });
@@ -23,6 +36,7 @@ export const signup = async (req, res) => {
       email,
       password: hashPassword,
       userName,
+      profileImage,
     });
 
     let token = generateToken(User._id);
@@ -40,6 +54,7 @@ export const signup = async (req, res) => {
         lastName,
         email,
         userName,
+        profileImage
       },
     });
   } catch (error) {
