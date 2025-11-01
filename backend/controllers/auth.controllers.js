@@ -39,7 +39,7 @@ export const signup = async (req, res) => {
       profileImage,
     });
 
-    let token = generateToken(User._id);
+    let token = generateToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
@@ -95,6 +95,7 @@ export const login = async (req, res) => {
         lastName: userExcited.lastName,
         email: userExcited.email,
         userName: userExcited.userName,
+        profileImage: userExcited.profileImage
       },
     });
   } catch (error) {
@@ -111,4 +112,23 @@ export const logout= async(req,res)=>{
   } catch (error) {
     return res.status(400).json(error);
   }
+}
+
+export const getUserData= async (req ,res)=>{
+
+  try{
+    const userId=req.userId;
+    if(!userId){
+      return res.status(404).json({message:"User not found"});
+    }
+    const user= await User.findById(userId)
+    if(!user){
+      return res.status(404).json({message:"User not found"});
+    }
+    return res.status(200).json({user});
+  } catch (error){
+    return res.status(500).json({message:"Internal Server Error"}); 
+
+  }
+
 }

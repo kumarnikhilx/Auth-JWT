@@ -1,36 +1,56 @@
-import React, { useState ,useContext} from 'react';
+import React, { useState ,useContext, useRef} from 'react';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
-import blankprofile from '../assets/blankprofile.webp';
+import dp from '../assets/blankprofile.webp';
 import { dataContext } from '../context/UserContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function SignUp() {
   const navigator= useNavigate();
-  let {serverURL}= useContext(dataContext);
+  let {serverURL,userData,setUserData,getUserData }= useContext(dataContext);
   const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
+  let file=useRef(null);
 
  const handleSignUp = async(e) => {
     e.preventDefault();
     try {
-      const data=await axios.post(`${serverURL}/api/signup`,{
-        firstName,
-        lastName,
-        email,
-        password,
-        userName
-      },{withCredentials:true});
-      console.log(data);
+      let formData=new FormData();
+      formData.append("firstName",firstName);
+      formData.append("lastName",lastName);
+      formData.append("email",email);
+      formData.append("password",password);
+      formData.append("userName",userName);
+      if(backendImage){
+         formData.append("profileImage",backendImage);
+      }    
+      
+      const data=await axios.post(`${serverURL}/api/signup`,formData,{withCredentials:true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+      await getUserData();
+      setUserData(data.data.user);
       
     } catch (error) {
       console.error("Error during sign-up:", error.message);
       
     }
+
+ }
+ let [frontendImage,setFrontImage]=useState(dp);
+ let [backendImage,setBackedImage]=useState(null);
+ function handleImage(e){
+ const file=e.target.files[0];
+ setBackedImage(file);
+ let image=URL.createObjectURL(file)
+  setFrontImage(image);
+
 
  }
 
@@ -42,9 +62,10 @@ function SignUp() {
         <h1 className='text-[#D2C1B6] font-bold text-[30px]'>Sign Up</h1>
 
         <form className='w-full flex flex-col justify-center items-center' onSubmit={handleSignUp} >
+          <input type="file" hidden ref={file} onChange={handleImage}/>
           <div className='w-[120px] h-[120px] rounded-full bg-white overflow-hidden mb-[12px] border-4 border-white relative'>
-            <img src={blankprofile} alt='profile' className='w-full h-full object-cover' />
-            <div className='absolute w-full h-full bg-black top-0 opacity-0 hover:opacity-50 cursor-pointer flex justify-center items-center font-semibold text-white text-[20px]'>
+            <img src={frontendImage} alt='profile' className='w-full h-full object-cover' />
+            <div className='absolute w-full h-full bg-black top-0 opacity-0 hover:opacity-50 cursor-pointer flex justify-center items-center font-semibold text-white text-[20px]' onClick={()=>{file.current.click()}}>
               +
             </div>
           </div>

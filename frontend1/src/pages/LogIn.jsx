@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 function LogIn() {
   const navigator= useNavigate();
-  let {serverURL}= useContext(dataContext);
+let {serverURL,userData,setUserData,getUserData}= useContext(dataContext);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +19,11 @@ function LogIn() {
         password
       },{withCredentials:true});
       console.log(data.data);
-      
+      await getUserData();
+
+      setUserData(data.data.user);
+      navigator("/home");
+
     } catch (error) {
       console.error("Error during sign-up:", error.response.data.message);
       alert(error.response.data.message);
