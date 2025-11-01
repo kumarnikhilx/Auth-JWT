@@ -22,13 +22,12 @@ let {serverURL,userData,setUserData,getUserData}= useContext(dataContext);
       await getUserData();
 
       setUserData(data.data.user);
-      navigator("/home");
+      navigator("/");
 
     } catch (error) {
       console.error("Error during sign-up:", error.response.data.message);
       alert(error.response.data.message);
     }
-
  }
 
 

@@ -36,6 +36,10 @@ function SignUp() {
       });
       await getUserData();
       setUserData(data.data.user);
+      if(userData){
+
+        navigator("/");
+      }
       
     } catch (error) {
       console.error("Error during sign-up:", error.message);
